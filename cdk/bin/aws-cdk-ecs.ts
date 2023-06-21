@@ -33,7 +33,7 @@ const appEcs = new Service(app, "EcsService", {
     namespace: ecsCluster.cluster.defaultCloudMapNamespace?.namespaceName,
     services: [
       {
-        portMappingName: "server",
+        portMappingName: "app",
       },
     ],
   },
