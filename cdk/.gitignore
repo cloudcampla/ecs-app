@@ -1,0 +1,30 @@
+# Ignore CDK synthesized files
+cdk.out/
+cdk.context.json
+
+# Ignore project specific files and directories
+node_modules/
+package-lock.json
+.env
+cdk.context.ts
+
+# Ignore build artifacts
+dist/
+build/
+*.js
+
+# Ignore IDE and editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Ignore logs and temporary files
+*.log
+*.tmp
+
+# Ignore package files
+*.zip
+*.tar.gz
+*.tar
+*.gz
