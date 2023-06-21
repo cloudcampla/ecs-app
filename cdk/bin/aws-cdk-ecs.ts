@@ -46,6 +46,61 @@ const appEcs = new Service(app, "EcsService", {
       appProtocol: cdk.aws_ecs.AppProtocol.http2,
     },
   ],
+  policy: {
+    Version: "2012-10-17",
+    Statement: [
+      {
+        Sid: "AllowEcrPermissions",
+        Effect: "Allow",
+        Action: [
+          "ecr:GetAuthorizationToken",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage",
+        ],
+        Resource: "*",
+      },
+      {
+        Sid: "AllowSsmActions",
+        Effect: "Allow",
+        Action: [
+          "ssmmessages:CreateControlChannel",
+          "ssmmessages:CreateDataChannel",
+          "ssmmessages:OpenControlChannel",
+          "ssmmessages:OpenDataChannel",
+        ],
+        Resource: "*",
+      },
+      {
+        Sid: "AllowEcsExecuteCommand",
+        Effect: "Allow",
+        Action: "ecs:ExecuteCommand",
+        Resource: "*",
+      },
+      {
+        Sid: "AllowCloudwatchActions",
+        Effect: "Allow",
+        Action: ["logs:CreateLogStream", "logs:PutLogEvents"],
+        Resource: "*",
+      },
+      {
+        Sid: "AllowParameterStoreActions",
+        Effect: "Allow",
+        Action: [
+          "ssm:GetParameter",
+          "ssm:GetParameters",
+          "ssm:GetParametersByPath",
+        ],
+        Resource: "*",
+      },
+      {
+        Sid: "AllowSecretManagerActions",
+        Effect: "Allow",
+        Action: ["secretsmanager:GetSecretValue"],
+        Resource: "*",
+      },
+    ],
+  },
 });
 
 app.synth();

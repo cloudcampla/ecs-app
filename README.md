@@ -27,3 +27,13 @@ npm install
 ```
 cdk deploy --all
 ```
+
+- How interat inside the container:
+
+```
+aws ecs execute-command --cluster applications \
+    --task <your-task-arn> \
+    --container app\
+    --command "/bin/sh" \
+    --interactive
+```

@@ -2,9 +2,13 @@ import * as cdk from "aws-cdk-lib";
 import * as ecs from "aws-cdk-lib/aws-ecs";
 import * as ecsPatterns from "aws-cdk-lib/aws-ecs-patterns";
 import * as logs from "aws-cdk-lib/aws-logs";
-import * as ecr from "aws-cdk-lib/aws-ecr";
 import { Construct } from "constructs";
-import { DockerImageAsset } from "aws-cdk-lib/aws-ecr-assets";
+import {
+  Role,
+  PolicyDocument,
+  ServicePrincipal,
+  Policy,
+} from "aws-cdk-lib/aws-iam";
 
 interface ServiceProps {
   serviceName: string;
@@ -13,6 +17,7 @@ interface ServiceProps {
   image: string;
   requireLoadBalancer?: boolean;
   portMappings?: ecs.PortMapping[];
+  policy?: any;
 }
 
 export class Service extends cdk.Stack {
@@ -20,6 +25,7 @@ export class Service extends cdk.Stack {
   public readonly serviceAlb: ecsPatterns.ApplicationLoadBalancedFargateService;
   public readonly taskDefinition: ecs.FargateTaskDefinition;
   public readonly logGroup: logs.LogGroup;
+  private taskRole: Role;
   constructor(scope: Construct, id: string, props: ServiceProps) {
     super(scope, id);
     this.logGroup = new logs.LogGroup(this, "LogGroup", {
@@ -27,12 +33,27 @@ export class Service extends cdk.Stack {
       retention: logs.RetentionDays.FIVE_DAYS,
     });
 
+    if (props.policy) {
+      const policyDocument = PolicyDocument.fromJson(props.policy);
+      const policy = new Policy(this, "Policy", {
+        policyName: `${props.serviceName}-execution-role-policy`,
+        document: policyDocument,
+      });
+      this.taskRole = new Role(this, "ExecutionRole", {
+        roleName: `${props.serviceName}-execution-role`,
+        assumedBy: new ServicePrincipal("ecs-tasks.amazonaws.com"),
+      });
+      this.taskRole.attachInlinePolicy(policy);
+    }
+
     // Define the ECS task definition
     this.taskDefinition = new ecs.FargateTaskDefinition(
       this,
       "TaskDefinition",
       {
         family: props.serviceName,
+        taskRole: this.taskRole,
+        executionRole: this.taskRole,
       },
     );
 
@@ -63,8 +84,23 @@ export class Service extends cdk.Stack {
           serviceName: props.serviceName,
           cluster: props.cluster,
           taskDefinition: this.taskDefinition,
+          enableExecuteCommand: true,
         },
       );
+
+      const scaling = this.serviceAlb.service.autoScaleTaskCount({
+        minCapacity: 1,
+        maxCapacity: 10,
+      });
+
+      scaling.scaleOnCpuUtilization("CPUPolicyScaling", {
+        targetUtilizationPercent: 70,
+      });
+
+      scaling.scaleOnMemoryUtilization("MemoryPolicyScaling", {
+        targetUtilizationPercent: 70,
+      });
+
       new cdk.CfnOutput(this, "LoadBalancerDNS", {
         value: this.serviceAlb.loadBalancer.loadBalancerDnsName,
       });
