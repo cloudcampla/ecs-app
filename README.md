@@ -1,6 +1,6 @@
 # Deploying ECS APP
 
-![Diagram](./images/Diagram.png "Diagram")
+![Diagram](./images/Diagram.jpeg "Diagram")
 
 Prerequisites:
 
