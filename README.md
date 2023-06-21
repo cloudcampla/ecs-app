@@ -6,7 +6,9 @@ Prerequisites:
 
 - [AWS Cli installed](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html "AWS Cli installed")
 
-* [Configure AWS profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html "Configure AWS profile")
+- [AWS Session Manager plugin](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html#install-plugin-macos-signed "AWS Session Manager plugin")
+
+- [Configure AWS profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html "Configure AWS profile")
 
 To deploy the components using CDK please following the next steps:
 
@@ -36,4 +38,10 @@ aws ecs execute-command --cluster applications \
     --container app\
     --command "/bin/sh" \
     --interactive
+```
+
+- How destroy all the services:
+
+```
+cdk destroy --all
 ```
