@@ -28,7 +28,7 @@ npm install
 cdk deploy --all
 ```
 
-- How interat inside the container:
+- How to interact inside the container:
 
 ```
 aws ecs execute-command --cluster applications \
